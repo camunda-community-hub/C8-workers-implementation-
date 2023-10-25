@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0jiyami" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.13.0" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.2.0">
+  <bpmn:collaboration id="Collaboration_0bjlnef">
+    <bpmn:participant id="Participant_1e26z3z" name="WorkerSyncrhonousThread" processRef="ThreadTokenWorker" />
+  </bpmn:collaboration>
+  <bpmn:process id="ThreadTokenWorker" name="Thread Token Worker" isExecutable="true">
+    <bpmn:serviceTask id="Activity_185erq2" name="setList">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="setlist-worker" />
+        <zeebe:ioMapping>
+          <zeebe:input source="=&#34;TokenWorker&#34;" target="typeWorker" />
+        </zeebe:ioMapping>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0urro2x</bpmn:incoming>
+      <bpmn:outgoing>Flow_0xfrhn8</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:startEvent id="Event_1pv8woe">
+      <bpmn:outgoing>Flow_0urro2x</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_0urro2x" sourceRef="Event_1pv8woe" targetRef="Activity_185erq2" />
+    <bpmn:sequenceFlow id="Flow_0xfrhn8" sourceRef="Activity_185erq2" targetRef="Activity_0re16ms" />
+    <bpmn:sequenceFlow id="Flow_0vilyig" sourceRef="Activity_0re16ms" targetRef="Activity_0h685vd" />
+    <bpmn:sequenceFlow id="Flow_0orzmzr" sourceRef="Activity_0h685vd" targetRef="Event_088kfb6" />
+    <bpmn:serviceTask id="Activity_0re16ms" name="Thread Lim">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="thread-token-worker" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0xfrhn8</bpmn:incoming>
+      <bpmn:outgoing>Flow_0vilyig</bpmn:outgoing>
+      <bpmn:multiInstanceLoopCharacteristics>
+        <bpmn:extensionElements>
+          <zeebe:loopCharacteristics inputCollection="=listValues" inputElement="timeToExecute" />
+        </bpmn:extensionElements>
+      </bpmn:multiInstanceLoopCharacteristics>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Activity_0h685vd" name="CalculateExecution">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="calculation-worker" />
+        <zeebe:ioMapping>
+          <zeebe:input source="=&#34;TokenWorker&#34;" target="typeWorker" />
+        </zeebe:ioMapping>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0vilyig</bpmn:incoming>
+      <bpmn:outgoing>Flow_0orzmzr</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Event_088kfb6" name="End Process">
+      <bpmn:incoming>Flow_0orzmzr</bpmn:incoming>
+    </bpmn:endEvent>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_0bjlnef">
+      <bpmndi:BPMNShape id="Participant_1e26z3z_di" bpmnElement="Participant_1e26z3z" isHorizontal="true">
+        <dc:Bounds x="129" y="80" width="1149" height="190" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_1n0xos4" bpmnElement="Activity_185erq2">
+        <dc:Bounds x="260" y="130" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1pv8woe_di" bpmnElement="Event_1pv8woe">
+        <dc:Bounds x="172" y="152" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_07jy11r" bpmnElement="Activity_0re16ms">
+        <dc:Bounds x="430" y="130" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_1xyjcrd" bpmnElement="Activity_0h685vd">
+        <dc:Bounds x="590" y="130" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_088kfb6_di" bpmnElement="Event_088kfb6">
+        <dc:Bounds x="752" y="152" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="739" y="195" width="63" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0urro2x_di" bpmnElement="Flow_0urro2x">
+        <di:waypoint x="208" y="170" />
+        <di:waypoint x="260" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_1ewzeva" bpmnElement="Flow_0xfrhn8">
+        <di:waypoint x="360" y="170" />
+        <di:waypoint x="430" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_0c8oscx" bpmnElement="Flow_0vilyig">
+        <di:waypoint x="530" y="170" />
+        <di:waypoint x="590" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0orzmzr_di" bpmnElement="Flow_0orzmzr">
+        <di:waypoint x="690" y="170" />
+        <di:waypoint x="752" y="170" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

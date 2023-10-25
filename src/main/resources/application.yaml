@@ -1,0 +1,18 @@
+zeebe:
+  gatewayaddress: 127.0.0.1:26500
+  operateUsername: demo
+  operatePassword: demo
+  operateUrl: http://localhost:8081
+
+  worker:
+    # number of threads active in the Zeebe Client
+    jobsactive: 10
+
+    # the time to execute the job are homegenous (5 s each) or not (5 to 15 s each)
+    homegeneousWorker: false
+
+    # set the value to the same as job active. then, we are sure this maximum thread are created
+    semaphore: 10
+
+    # size of the list = number of execution for the worker
+    sizelist: 1000
