@@ -23,7 +23,6 @@ public class ClassicalWorker implements JobHandler {
   @Override
   public void handle(JobClient jobClient, ActivatedJob activatedJob) throws Exception {
 
-
     logger.debug("------------- Worker: ClassicalWorker " + Thread.currentThread().getName());
 
     monitorWorker.startHandle(this);

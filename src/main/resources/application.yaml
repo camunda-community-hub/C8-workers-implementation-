@@ -8,7 +8,7 @@ zeebe:
     # number of threads active in the Zeebe Client
     jobsactive: 10
 
-    # the time to execute the job are homegenous (5 s each) or not (5 to 15 s each)
+    # the time to execute the job are homogeneous (5 s each) or not (5 to 15 s each)
     homegeneousWorker: false
 
     # set the value to the same as job active. then, we are sure this maximum thread are created
@@ -16,3 +16,18 @@ zeebe:
 
     # size of the list = number of execution for the worker
     sizelist: 1000
+
+workerapplication:
+  runTests: true
+  # Specify the list of test to run automatically
+  # List is Classical Worker,Thread Worker,Thread Token Worker,Asynchronous Worker
+  # runListTests: Classical,Thread,ThreadToken,Asynchronous
+  runListTests: Classical,Thread,ThreadToken,Asynchronous
+
+
+  # for a test, give the Stream mode: NOSTREAM, YES: STREAM, ALL: both (2 tests)
+  # NOSTREAM, STREAM, ALL
+  runModeStream: ALL
+  # for a test, give the Heterogeneous mode: HETEROGENEOUS, HOMOGENEOUS, ALL: both (2 tests)
+  # HETEROGENEOUS, HOMOGENEOUS, ALL
+  runModeHeterogeneous: ALL

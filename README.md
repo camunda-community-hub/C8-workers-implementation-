@@ -156,6 +156,27 @@ It is a Spring boot application.
 Under `src/main/resources`, different processes are available, one for each implementation.
 Choose one, deploy it, and create one process instance.
 
+or ask the application to run all tests, one by one.
+
+````yaml
+workerapplication:
+  runTests: true
+  # Specify the list of test to run automatically
+  # List is Classical Worker,Thread Worker,Thread Token Worker,Asynchronous Worker
+  runListTests: Classical,Thread,ThreadToken,Asynchronous
+  
+# for a test, give the Stream mode: NOSTREAM, YES: STREAM, ALL: both (2 tests)
+  # NOSTREAM, STREAM, ALL
+  runModeStream: ALL
+  # for a test, give the Heterogeneous mode: HETEROGENEOUS, HOMOGENEOUS, ALL: both (2 tests)
+  # HETEROGENEOUS, HOMOGENEOUS, ALL
+  runModeHeterogeneous: ALL
+````
+
+The application will deploy each process, and then run tests according the modeStream and 
+modeHeterogeneous. If both are set to ALL, this is 2x2=4 tests per process.
+
+
 # Follow the execution
 
 The first worker, `setList`, populates a list of items (parameter `zeebe.worker.sizelist`).
@@ -181,14 +202,14 @@ And at the end
 ````
 o.c.w.workers.CalculateExecutionWorker   : ------------- Worker: calculateExecutionWorker PID[2251799813779385] Type[SynchronousThreadLim] in 50790 ms Efficiency: 98 %
 ````
-*InstanceEfficiency*
+**InstanceEfficiency**
 This indicator is calculated by calculating the number of threads currently working (i.e., in this example, executing the method "WorkToComplete")
 and the number of threads declared in the Zeebe client (parameter `zeebe.worker.jobsactive`).
 
 Zeebe Client created all threads in the classical worker, but it will wait until all workers are finished to call a different batch.
 Then, at the moment, the number of threads working is generally less than this number.
 
-* Efficiency**
+**Efficiency**
 
 This indicator is calculated at the end. It calculates the time to execute all actions (time between the `setList` and the `calculatedExecution`)
 Formula is
@@ -209,15 +230,26 @@ and you can overload your machine.
 
 ## Result
 
+**Stream**
+When a worker is registered, it can be done using the Stream method.
+With a Stream, a connection is keep opened and Zeebe give the work to the worker faster.
+Each measure is realized with the stream mechanism and without.
+
+**Homogeneous:**
+
 It results from a list of 1000 tasks, homogeneous workers: each worker needs 5 s to complete.
 
-| Worker              | Total time | Efficiency |
-|---------------------|-----------:|-----------:|
-| Classical Worker    |    735 691 |       68 % |
-| Thread Worker       |     37 609 |     1329 % | 
-| Thread Token Worker |    507 205 |       98 % |
-| Asynchronous Worker |     23 304 |     1325 % |
+| Worker              | Total time | Efficiency | Total time(Stream) | Efficiency(Stream) |
+|---------------------|-----------:|-----------:|-------------------:|-------------------:|
+| Classical Worker    |    735 691 |       68 % |            708 254 |               98 % |
+| Thread Worker       |     37 609 |     1329 % |              7 834 |             6389 % | 
+| Thread Token Worker |    511 927 |       97 % |        (*) 510 575 |               97 % | 
+| Asynchronous Worker |     23 304 |     1325 % |              11056 |             4523 % | 
 
+(*) During the test, the worker detect that multiple jobs were sent multiple time to the worker: 420 jobs on 1000. 
+
+
+**Heterogeneous:**
 
 The same simulation in a heterogeneous worker needs 5 to 15 seconds to complete the work.
 The total of work is the same (total time to wait), but the distribution is heterogeneous: one
@@ -227,11 +259,12 @@ job will wait 3 seconds, and another work 7 seconds.
 `Thread Token Worker` keeps the same level of efficiency. `Thread Worker` or `Asynchronous Thread` has the
 same level.
 
-| Worker              | Total time | Efficiency |
-|---------------------|-----------:|-----------:|
-| Classical Worker    |    748 432 |       66 % |
-| Thread Worker       |     45 949 |     1091 % | 
-| Thread Token Worker |    506 235 |       98 % |
-| Asynchronous Worker |      25613 |     1406 % |
+| Worker                  | Total time | Efficiency | Total time (Stream) | Efficiency(Stream) |
+|-------------------------|-----------:|-----------:|--------------------:|-------------------:|
+| Classical Worker        |    748 432 |       66 % |             705 344 |               98 % |
+| Thread Worker           |     45 949 |     1091 % |              13 714 |             3646 % |
+| Thread Token Worker     |    510 356 |       97 % |         (*) 511 022 |                97% |
+| Asynchronous Worker     |     25 613 |     1406 % |              11 166 |             4468 % | 
 
 
+(*) see remark below

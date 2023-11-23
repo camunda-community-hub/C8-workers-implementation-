@@ -8,9 +8,12 @@ Doing that, Zeebe's client
 
 * Send N jobs in N different threads (call handle() method)
 
-* Wait until the N jobs are finished to ask again for a new batch of N jobs.
+* Wait until the 70% of N jobs are finished to ask again for a new batch of N jobs.
   If the execution varies between 1 to 5 seconds, it will wait for the most extended execution to ask
   again for the next job: it will wait 5 seconds. So, the pod may have a low CPU time execution.
+
+See [JobWorkerImpl.java](https://github.com/camunda/zeebe/blame/main/clients/java/src/main/java/io/camunda/zeebe/client/impl/worker/JobWorkerImpl.java)
+
 
 ![Classical](ClassicalWorker.png)
 

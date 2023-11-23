@@ -33,7 +33,7 @@ public class AsynchronousWorker implements JobHandler {
   private void doWorkInDifferentThread(JobClient jobClient, ActivatedJob activatedJob) {
     Thread thread = new Thread(() -> {
       WorkToComplete workToComplete = new WorkToComplete();
-      workToComplete.executeJob(this,activatedJob, monitorWorker);
+      workToComplete.executeJob(this, activatedJob, monitorWorker);
     });
     thread.start();
   }
