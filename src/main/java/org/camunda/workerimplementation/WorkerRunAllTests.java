@@ -148,7 +148,7 @@ public class WorkerRunAllTests {
           + " | " + format("Execution", 13, false) // execution
           + " | " + format("Total time", 10, false)// total time
           + " | " + format("Efficiency", 10, false)// efficiency
-          + " | " + format("Error", 20, false) // error
+          + " | " + format("Error?", 20, false) // error
           + " |";
     }
 

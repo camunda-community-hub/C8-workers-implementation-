@@ -24,10 +24,10 @@ public class ThreadTokenWorker implements JobHandler {
   @Override
   public void handle(JobClient jobClient, ActivatedJob activatedJob) throws Exception {
     logger.debug("------------- Worker: ThreadTokenWorker " + Thread.currentThread().getName());
-    monitorWorker.startHandle(this);
+    monitorWorker.startHandle(this,activatedJob);
     if (monitorWorker.registerJob(activatedJob)) {
       // already registered: so ignore it
-      monitorWorker.stopHandle(this);
+      monitorWorker.stopHandle(this, activatedJob);
       return;
     }
     // We ask for a token, then a limited number of threads can continue after, else the worker waits
@@ -41,11 +41,13 @@ public class ThreadTokenWorker implements JobHandler {
     // The thread must release the token at the end
     doWorkInDifferentThread(jobClient, activatedJob);
 
-    monitorWorker.stopHandle(this);
+    monitorWorker.stopHandle(this, activatedJob);
   }
 
   private void doWorkInDifferentThread(JobClient jobClient, ActivatedJob activatedJob) {
     Thread thread = new Thread(() -> {
+      monitorWorker.startExecuteJob(activatedJob);
+
       WorkToComplete workToComplete = new WorkToComplete();
       workToComplete.executeJob(this, activatedJob, monitorWorker);
       jobClient.newCompleteCommand(activatedJob.getKey()).send().join();

@@ -21,12 +21,12 @@ public class ThreadWorker implements JobHandler {
   public void handle(JobClient jobClient, ActivatedJob activatedJob) throws Exception {
     logger.debug("------------- Worker: threadExecutor " + Thread.currentThread().getName());
 
-    monitorWorker.startHandle(this);
+    monitorWorker.startHandle(this, activatedJob);
 
     // We do the job in a different thread, then this method ends, and Zeebe Client can ask a new batch
     doWorkInDifferentThread(jobClient, activatedJob);
 
-    monitorWorker.stopHandle(this);
+    monitorWorker.stopHandle(this, activatedJob);
   }
 
   private void doWorkInDifferentThread(JobClient jobClient, ActivatedJob activatedJob) {

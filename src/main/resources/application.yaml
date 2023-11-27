@@ -15,19 +15,38 @@ zeebe:
     semaphore: 10
 
     # size of the list = number of execution for the worker
-    sizelist: 1000
+    sizelist: 500
 
 workerapplication:
   runTests: true
   # Specify the list of test to run automatically
   # List is Classical Worker,Thread Worker,Thread Token Worker,Asynchronous Worker
   # runListTests: Classical,Thread,ThreadToken,Asynchronous
-  runListTests: Classical,Thread,ThreadToken,Asynchronous
-
+  runListTests2: Classical,Thread,ThreadToken,Asynchronous
+  runListTests: ThreadToken
 
   # for a test, give the Stream mode: NOSTREAM, YES: STREAM, ALL: both (2 tests)
   # NOSTREAM, STREAM, ALL
-  runModeStream: ALL
+  runModeStream: STREAM
   # for a test, give the Heterogeneous mode: HETEROGENEOUS, HOMOGENEOUS, ALL: both (2 tests)
   # HETEROGENEOUS, HOMOGENEOUS, ALL
-  runModeHeterogeneous: ALL
+  runModeHeterogeneous: HETEROGENEOUS
+
+  monitor:
+    logjob: false
+    # if true, then jobs are registered to track any double execution. This implie a synchronization in the code
+    registerjobs: false
+
+
+logging:
+  level:
+    root: INFO
+  pattern:
+    # console: %d{yyyy-MM-dd HH:mm:ss} - %msg%n
+    # file: %d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n
+  file.name: log/application-workerimpl.log
+
+spring:
+  output:
+  ansi:
+    enabled: DETECT

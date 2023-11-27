@@ -25,7 +25,7 @@ public class ClassicalWorker implements JobHandler {
 
     logger.debug("------------- Worker: ClassicalWorker " + Thread.currentThread().getName());
 
-    monitorWorker.startHandle(this);
+    monitorWorker.startHandle(this, activatedJob);
 
     // We do the job now
     WorkToComplete workToComplete = new WorkToComplete();
@@ -35,6 +35,6 @@ public class ClassicalWorker implements JobHandler {
     Map<String, Object> variables = new HashMap<>();
     variables.put("result", System.currentTimeMillis());
     jobClient.newCompleteCommand(activatedJob.getKey()).variables(variables).send().join();
-    monitorWorker.stopHandle(this);
+    monitorWorker.stopHandle(this, activatedJob);
   }
 }

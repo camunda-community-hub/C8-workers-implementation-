@@ -22,9 +22,9 @@ public class AsynchronousWorker implements JobHandler {
 
     logger.debug("------------- Worker: AsynchronousWorker");
 
-    monitorWorker.startHandle(this);
+    monitorWorker.startHandle(this, activatedJob);
     jobClient.newCompleteCommand(activatedJob.getKey()).send().join();
-    monitorWorker.stopHandle(this);
+    monitorWorker.stopHandle(this, activatedJob);
 
     // Job will be executed here, in a different thread
     doWorkInDifferentThread(jobClient, activatedJob);

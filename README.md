@@ -243,10 +243,8 @@ It results from a list of 1000 tasks, homogeneous workers: each worker needs 5 s
 |---------------------|-----------:|-----------:|-------------------:|-------------------:|
 | Classical Worker    |    735 691 |       68 % |            708 254 |               98 % |
 | Thread Worker       |     37 609 |     1329 % |              7 834 |             6389 % | 
-| Thread Token Worker |    511 927 |       97 % |        (*) 510 575 |               97 % | 
+| Thread Token Worker |    511 927 |       97 % |            510 575 |               97 % | 
 | Asynchronous Worker |     23 304 |     1325 % |              11056 |             4523 % | 
-
-(*) During the test, the worker detect that multiple jobs were sent multiple time to the worker: 420 jobs on 1000. 
 
 
 **Heterogeneous:**
@@ -263,8 +261,6 @@ same level.
 |-------------------------|-----------:|-----------:|--------------------:|-------------------:|
 | Classical Worker        |    748 432 |       66 % |             705 344 |               98 % |
 | Thread Worker           |     45 949 |     1091 % |              13 714 |             3646 % |
-| Thread Token Worker     |    510 356 |       97 % |         (*) 511 022 |                97% |
+| Thread Token Worker     |    510 356 |       97 % |             511 022 |                97% |
 | Asynchronous Worker     |     25 613 |     1406 % |              11 166 |             4468 % | 
 
-
-(*) see remark below
