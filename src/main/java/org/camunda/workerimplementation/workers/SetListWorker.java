@@ -29,8 +29,9 @@ public class SetListWorker implements JobHandler {
 
     String typeWorker = (String) job.getVariablesAsMap().get(ProcessVariables.TYPE_WORKER);
 
-    logger.info("------------- Worker: setListWorker ["+typeWorker+"]");
-    monitorWorker.beginCampaign();
+    logger.info(
+        "------------- Worker: setListWorker [" + typeWorker + "] Homegenous:" + workerConfig.getHomogeneousWorker());
+    long beginCampaign = monitorWorker.beginCampaign();
     int totalTime = workerConfig.getSizeOfTheList() * 5000;
     int sumOfTime = 0;
 
@@ -61,7 +62,7 @@ public class SetListWorker implements JobHandler {
 
     Map<String, Object> variables = new HashMap<>();
     variables.put(ProcessVariables.LIST_VALUES, listValues);
-    variables.put(ProcessVariables.START_TIME, System.currentTimeMillis());
+    variables.put(ProcessVariables.START_TIME, beginCampaign);
     // Complete the Job
     jobClient.newCompleteCommand(job.getKey()).variables(variables).send().join();
   }

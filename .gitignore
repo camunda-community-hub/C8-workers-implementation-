@@ -1,2 +1,4 @@
 .idea
 .idea/compiler.xml
+/target/
+/log/application-workerimpl.log
