@@ -1,4 +1,4 @@
-# Thread Worker implementation
+# Thread Worker (Reactive programing) implementation
 
 In the Thread mode, the service task "handles" the call, starts a new thread to do the execution,
 and finishes the handle() method. So, from the Zeebe Client's point of view, jobs are completed, and
@@ -11,6 +11,20 @@ some CPU resources or memory, you may overflow the worker.
 ![Thread Worker](ThreadWorker.png)
 
 Looking for efficiency, you may require 100 threads, but your worker may run more than that.
+
+
+**Thread worker and Rest Call**
+If the work consist of call an external task pattern, this is the better pattern.Do not wait the REST call response, but register a lambda to execute the result.
+Thiw way, the thread does not wait the answer.
+
+Via this pattern, the number of thread is limited to the number of thread dedicated to the worker, plus threads to manage the answer.
+
+![ThreadWorker-Restcall.png](ThreadWorker-Restcall.png)
+
+
+Visit https://blog.bernd-ruecker.com/writing-good-workers-for-camunda-cloud-61d322cad862, and especially the reactive programming section.
+
+
 
 ## Advantages
 This implementation is compelling if the worker has no CPU and sends a request to an

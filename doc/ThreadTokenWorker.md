@@ -1,4 +1,4 @@
-# Thread Token Worker implementation
+# Thread Token (Reactive programing + token) Worker implementation
 
 In the Thread token mode, the service task "handles" the call and acquires a token before starting
 a new thread to do the execution.

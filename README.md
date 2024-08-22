@@ -56,7 +56,7 @@ Visit [Classical Worker](doc/ClassicalWorker.md) detail.
 
 ![Classical Worker](doc/ClassicalWorker.png)
 
-## Thread Worker
+## Thread Worker (Reactive programing)
 The Thread Worker implementation starts a new thread in the handle() method to execute the job.
 The thread will realize the treatment.
 Doing that, the handle() method terminates immediately. Zeebe Client detects that all handle method
@@ -71,7 +71,23 @@ when one thread listens to the answer and executes the task.
 The test shows that the efficiency is about 1300 %: for 100 active threads in Zeebe,
 You have 1300 threads in the Java Machine.
 
+**Thread worker and Rest Call**
+If the worker consists of call an external REST API, this pattern is perfect. The handle method do the REST call, and not wait the answer.
+The result will call a lambda.
+
+The handle() method is finished, and the Zeebe Client will ask again a new set of jobs.
+
+When the result come, the lambda is call in a new thread. This new thread will run the completeJob() method.
+
+
+![ThreadWorker-Restcall.png](doc/ThreadWorker-Restcall.png)
+
 Visit [Thread Worker](doc/ThreadWorker.md) detail.
+
+Visit https://docs.camunda.io/docs/components/best-practices/development/writing-good-workers/#non-blocking--reactive-code
+
+Visit https://blog.bernd-ruecker.com/writing-good-workers-for-camunda-cloud-61d322cad862, and especially the reactive programming section.
+
 
 
 ![Thread Worker](doc/ThreadWorker.png)
