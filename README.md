@@ -2,12 +2,38 @@
 This project explores the different ways to implement workers with C8. For each implementation,
 impacts are explained.
 
-The project contains all implementation, with the result in terms of performance.
+The project contains all implementations, with the result in terms of performance.
 Visit the Execution section if you want to run examples.
 
-Note: This reflection is acceptable for C7 workers
+Note: This reflection is acceptable for Camunda 7 workers for the implementation.Camunda 7 has only one thread per worker.
 
 # Number of jobs, number of threads
+
+When the connection is open, two parameters are available: the number of Jobs Active and the number of Threads. 
+This parameter is on the connection, meaning impact all workers using this connection.
+
+```java
+ZeebeClient zeebeClient = ZeebeClient.newClientBuilder()
+        .gatewayAddress(workerConfig.getZeebeBrokerAddress())
+        .defaultJobWorkerMaxJobsActive(workerConfig.getNumberOfJobsActive())
+        .numJobWorkerExecutionThreads(workerConfig.getNumberOfJobsActive())
+        .build();
+
+```
+
+These parameters can be set on Java, but via the `application.yaml` too.
+
+```yaml
+camunda:
+  client:
+    zeebe:
+      defaults:
+        max-jobs-active: 32
+      execution-threads: 1
+```
+
+Visit https://docs.camunda.io/docs/apis-tools/spring-zeebe-sdk/configuration/#configure-jobs-in-flight-and-thread-pool
+ 
 
 **Jobs active** method:
 ````
@@ -28,24 +54,108 @@ processed via the handle() method.
 
 Multiple threads can be used to process this batch: this is the number of threads.
 
+**Timeout**
+
+The last parameter to take into account is the timeout.
+
+The timeout is crucial to understand: it defines how long Zeebe will wait for a response from the worker before assuming the worker is unresponsive. 
+If no response is received within this period, the job is released and reassigned to another available worker.
+
+This information is set up worker per worker, when it is registered
+```
+zeebeClient.newWorker()
+  .jobType("classical-worker")
+  .handler(new ClassicalWorker(workerConfig, monitorWorker))
+  .timeout(Duration.ofMinutes(1))
+  .open();
+```
+Via the Annotation
+```
+@JobWorker(type="foo", timeout = 3000)
+```
+
+or in the YAML too  
+
+```yaml
+camunda:
+  client:
+    zeebe:
+      override:
+        foo:
+          timeout: PT10S
+```
+
+or via the application.yaml
+
+https://docs.camunda.io/docs/apis-tools/spring-zeebe-sdk/configuration/#overriding-jobworker-values-via-configuration-file
+
+The recommendation is to estimate the time a worker needs, and increase this number by 30 %.
+
+Remember the main recommenation is to create an idempotent worker. If the worker is executed multiple time, the application must handle it.
+
+## Pitfall to avoid
+
 According to that:
-* NumberOfTreads bigger than NumberOfJobs
+* **Number Of Treads**  bigger than **Jobs Active**
   Specifying more threads than jobs makes no sense: NumberOfJobs will be fetched and sent to
   all threads. The other threads will never be used.
 
-* When the NumberOfJobs is bigger than the NumberOfThreads.
+* When the **Jobs Active** is bigger than the **Number Of Threads**.
   The first NumberOfThreads are immediately processed.
-  Another job waits in the queue to have an available thread. So, the lock time must be addressed
-  correctly: this is not the time to execute one job, but two or maybe more (number of jobs/NumberOfThread more)
+  Another job waits in the queue to have an available thread. So, the **timeout** must be addressed correctly: 
+  this is not the time to execute one job, but two or maybe more (number of jobs/NumberOfThread more)
+
+
+How to set up the time out when the Active Jobs is upper than the number of threads:
+
+To understand the concept, let take this values:
+Active Jobs: 9
+Number of threads: 3
+Time to execute a jobs: 8 seconds.
+
+### Time = 0
+Worker got 9 jobs at Time=0. 
+3 threads work on jobs 1, 2, 3.
+
+### Time = 8 seconds
+The first 3 jobs are complete, 3 threads work now on jobs 4,5,6
+
+### Time = 16 seconds
+The next 3 jobs are complete, 3 threads work now on jobs 7,8,9
+
+### Time = 24 seconds
+Jobs 7,8,9 are complete now
+
+So, to avoid that jobs are not release, the timeout must be set to 24 seconds, and not 8 seconds.
+
+
+## How to set this parameters?
+
+**Rule 1: Match Jobs to Threads**
+
+Always align the number of jobs a worker fetches with the number of available threads. Fetching more jobs than the number 
+of threads is counterproductive — it locks jobs that could otherwise be immediately handled by other available workers.
+
+**Rule 2: Set Thread Count Based on Machine Capacity**
+
+Adjust the number of threads according to the machine's capabilities:
+
+If the worker performs heavy tasks (e.g., image processing or CPU-intensive operations), it may only handle around 5 threads efficiently.
+
+If the worker simply makes lightweight calls (e.g., to external REST services), it might handle up to 500 threads concurrently.
+
+**Balance the Configuration**
+
+Finding the right balance is key. More workers increase load and connections on Zeebe, while a single worker with too many threads can also become inefficient.
+As a general guideline, starting with around 200 threads is a good baseline.
 
 
 # Classical Worker, Thread Worker, Thread Token Worker, Asynchronous
 
-When you execute a service task, you can set up multiple threads and ask for multiple jobs.
-Let's say you set up, for the service task "credit-charging", three threads and three jobs simultaneously.
-This service task takes 1 to 5 seconds to answer.
+When executing a service task, you can configure it to use multiple threads and fetch multiple jobs in parallel.
+For example, consider the service task "credit-charging" configured with 3 threads and fetching 3 jobs simultaneously. Each job takes between 1 to 5 seconds to complete.
 
-Visit the detail on each implementation for description, advantages and concerns, and use case.
+Refer to the implementation details for each worker to understand their behavior, advantages, limitations, and recommended use cases.
 
 ## Classical Worker
 
