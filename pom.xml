@@ -8,17 +8,14 @@
     <version>1.0.0</version>
 
     <properties>
-        <java.version>17</java.version>
+        <java.version>21</java.version>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <maven.compiler.source>${java.version}</maven.compiler.source>
 
-        <zeebe.version>8.3.1</zeebe.version>
-        <zeebe-client.version>8.3.1</zeebe-client.version>
-        <camunda7.version>7.18.0</camunda7.version>
+        <zeebe-client.version>8.8.7</zeebe-client.version>
 
         <junit.jupiter.version>5.9.1</junit.jupiter.version>
         <opensagres.version>2.0.3</opensagres.version>
-        <spring.boot.version>2.7.4</spring.boot.version>
     </properties>
 
 
@@ -37,7 +34,7 @@
                 <!-- Import dependency management from Spring Boot -->
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
-                <version>${spring.boot.version}</version>
+                <version>3.5.10</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -48,21 +45,32 @@
     <dependencies>
         <dependency>
             <groupId>io.camunda</groupId>
-            <artifactId>spring-boot-starter-camunda-sdk</artifactId>
-            <version>8.7.3</version>
+<!--            <artifactId>spring-boot-starter-camunda-sdk</artifactId> -->
+            <artifactId>camunda-spring-boot-starter</artifactId>
+            <version>${zeebe-client.version}</version>
         </dependency>
 
-
+        <!-- Source: https://mvnrepository.com/artifact/io.camunda/camunda-operate-client-java -->
         <dependency>
             <groupId>io.camunda</groupId>
             <artifactId>camunda-operate-client-java</artifactId>
-            <version>8.1.7.0</version>
+            <version>8.2.0</version>
+            <scope>compile</scope>
         </dependency>
+
         <!-- Process the configuration file -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>

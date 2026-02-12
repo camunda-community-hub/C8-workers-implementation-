@@ -1,12 +1,25 @@
+camunda:
+  client:
+    mode: self-managed
+    auth:
+        method:none
+    worker:
+      defaults:
+        max-jobs-active: 10
+        # https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/configuration/#define-the-job-timeout
+        timeout: PT2M
+        stream-enabled: true
+
+    grpc-address: http://127.0.0.1:26500
+    execution-threads: 10
+    prefer-rest-over-grpc: true
+
 zeebe:
-  gatewayaddress: 127.0.0.1:26500
   operateUsername: demo
   operatePassword: demo
   operateUrl: http://localhost:8081
 
   worker:
-    # number of threads active in the Zeebe Client
-    jobsactive: 10
 
     # the time to execute the job are homogeneous (5 s each) or not (5 to 15 s each)
     homegeneousWorker: false
@@ -23,7 +36,8 @@ workerapplication:
   # List is Classical Worker,Thread Worker,Thread Token Worker,Asynchronous Worker
   # runListTests: Classical,Thread,ThreadToken,Asynchronous
   runListTests2: Classical,Thread,ThreadToken,Asynchronous
-  runListTests: ThreadToken
+
+  runListTests: Classical
 
   # for a test, give the Stream mode: NOSTREAM, YES: STREAM, ALL: both (2 tests)
   # NOSTREAM, STREAM, ALL
@@ -33,7 +47,7 @@ workerapplication:
   runModeHeterogeneous: HETEROGENEOUS
 
   monitor:
-    logjob: false
+    logjobs: false
     # if true, then jobs are registered to track any double execution. This implie a synchronization in the code
     registerjobs: false
 
@@ -41,12 +55,10 @@ workerapplication:
 logging:
   level:
     root: INFO
-  pattern:
-    # console: %d{yyyy-MM-dd HH:mm:ss} - %msg%n
-    # file: %d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n
-  file.name: log/application-workerimpl.log
+#  file:
+#    name: log/application-workerimpl.log
 
-spring:
+spring22:
   output:
-  ansi:
-    enabled: DETECT
+    ansi:
+      enabled: DETECT

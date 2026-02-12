@@ -11,86 +11,74 @@ import java.util.List;
 @Component
 public class WorkerConfig {
 
-  @Value("${zeebe.gatewayaddress:127.0.0.1:26500}")
-  private String zeebeBrokerGatewayAddress;
 
-  @Value("${zeebe.worker.homegeneousWorker:true}")
-  private boolean homegeneousWorker = true;
+    @Value("${zeebe.worker.homegeneousWorker:true}")
+    private boolean homegeneousWorker = true;
 
-  /**
-   * If define, overlap the configuration value
-   */
-  private Boolean overlapHomogeneous = null;
+    /**
+     * If defined, overlap the configuration value
+     */
+    private Boolean overlapHomogeneous = null;
+    @Value("${zeebe.worker.semaphore:100}")
+    private int numberOfSemaphores = 10;
+    @Value("${zeebe.worker.sizelist:100}")
+    private Integer sizeOfTheList;
 
-  @Value("${zeebe.worker.jobsactive:100}")
-  private int numberOfJobsActive = 10;
-  @Value("${zeebe.worker.semaphore:100}")
-  private int numberOfSemaphores = 10;
-  @Value("${zeebe.worker.sizelist:100}")
-  private Integer sizeOfTheList;
+    @Value("${workerapplication.runTests}")
+    private Boolean runTests;
 
-  @Value("${workerapplication.runTests}")
-  private Boolean runTests;
+    @Value("#{'${workerapplication.runListTests}'.split(',')}") // Split the string into a list
+    private List<String> runListTests;
 
-  @Value("#{'${workerapplication.runListTests}'.split(',')}") // Split the string into a list
-  private List<String> runListTests;
+    @Value("${workerapplication.runModeStream}")
+    private String runModeStream;
+    @Value("${workerapplication.runModeHeterogeneous}")
+    private String runModeHeterogeneous;
 
-  @Value("${workerapplication.runModeStream}")
-  private String runModeStream;
-  @Value("${workerapplication.runModeHeterogeneous}")
-  private String runModeHeterogeneous;
+    public int getSizeOfTheList() {
+        return sizeOfTheList == null ? 100 : sizeOfTheList;
+    }
 
-  public int getNumberOfJobsActive() {
-    return numberOfJobsActive;
-  }
 
-  public int getSizeOfTheList() {
-    return sizeOfTheList == null ? 100 : sizeOfTheList;
-  }
+    public boolean getHomogeneousWorker() {
+        return (overlapHomogeneous != null ? overlapHomogeneous : homegeneousWorker);
+    }
 
-  public String getZeebeBrokerAddress() {
-    return zeebeBrokerGatewayAddress;
-  }
+    /**
+     * Overlap the value
+     *
+     * @param overlapHomogeneous the value, null to stop overlapping
+     */
+    public void setOverlapHomogeneousWorker(Boolean overlapHomogeneous) {
+        this.overlapHomogeneous = overlapHomogeneous;
+    }
 
-  public boolean getHomogeneousWorker() {
-    return (overlapHomogeneous != null ? overlapHomogeneous : homegeneousWorker);
-  }
+    public int getNumberOfSemaphores() {
+        return numberOfSemaphores;
+    }
 
-  /**
-   * Overlap the value
-   *
-   * @param overlapHomogeneous the value, null to stop overlaping
-   */
-  public void setOverlapHomogeneousWorker(Boolean overlapHomogeneous) {
-    this.overlapHomogeneous = overlapHomogeneous;
-  }
+    public boolean runTests() {
+        return Boolean.TRUE.equals(runTests);
+    }
 
-  public int getNumberOfSemaphores() {
-    return numberOfSemaphores;
-  }
+    public List<String> getRunListTests() {
+        return runListTests;
+    }
 
-  public boolean runTests() {
-    return Boolean.TRUE.equals(runTests);
-  }
+    public boolean runNoStreamTest() {
+        return "NOSTREAM".equalsIgnoreCase(runModeStream) || "ALL".equalsIgnoreCase(runModeStream);
+    }
 
-  public List<String> getRunListTests() {
-    return runListTests;
-  }
+    public boolean runStreamTest() {
+        return "STREAM".equalsIgnoreCase(runModeStream) || "ALL".equalsIgnoreCase(runModeStream);
+    }
 
-  public boolean runNoStreamTest() {
-    return "NOSTREAM".equalsIgnoreCase(runModeStream) || "ALL".equalsIgnoreCase(runModeStream);
-  }
+    public boolean runHeterogeneousTest() {
+        return "HETEROGENEOUS".equalsIgnoreCase(runModeHeterogeneous) || "ALL".equalsIgnoreCase(runModeHeterogeneous);
+    }
 
-  public boolean runStreamTest() {
-    return "STREAM".equalsIgnoreCase(runModeStream) || "ALL".equalsIgnoreCase(runModeStream);
-  }
-
-  public boolean runHeterogeneousTest() {
-    return "HETEROGENEOUS".equalsIgnoreCase(runModeHeterogeneous) || "ALL".equalsIgnoreCase(runModeHeterogeneous);
-  }
-
-  public boolean runHomogeneousTest() {
-    return "HOMOGENEOUS".equalsIgnoreCase(runModeHeterogeneous) || "ALL".equalsIgnoreCase(runModeHeterogeneous);
-  }
+    public boolean runHomogeneousTest() {
+        return "HOMOGENEOUS".equalsIgnoreCase(runModeHeterogeneous) || "ALL".equalsIgnoreCase(runModeHeterogeneous);
+    }
 
 }

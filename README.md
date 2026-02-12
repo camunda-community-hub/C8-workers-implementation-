@@ -9,36 +9,25 @@ Note: This reflection is acceptable for Camunda 7 workers for the implementation
 
 # Number of jobs, number of threads
 
-When the connection is open, two parameters are available: the number of Jobs Active and the number of Threads. 
+This configuration is done in the application.yaml
+
+When the connection is open, two parameters are available: the number of Jobs Active and the number of Threads.
 This parameter is on the connection, meaning impact all workers using this connection.
-
-```java
-ZeebeClient zeebeClient = ZeebeClient.newClientBuilder()
-        .gatewayAddress(workerConfig.getZeebeBrokerAddress())
-        .defaultJobWorkerMaxJobsActive(workerConfig.getNumberOfJobsActive())
-        .numJobWorkerExecutionThreads(workerConfig.getNumberOfJobsActive())
-        .build();
-
-```
-
-These parameters can be set on Java, but via the `application.yaml` too.
 
 ```yaml
 camunda:
   client:
-    zeebe:
+    worker:
       defaults:
-        max-jobs-active: 32
-      execution-threads: 1
+        max-jobs-active: 10
+        timeout: PT1M
+    execution-threads: 10
 ```
 
 Visit https://docs.camunda.io/docs/apis-tools/spring-zeebe-sdk/configuration/#configure-jobs-in-flight-and-thread-pool
  
 
 **Jobs active** method:
-````
-.defaultJobWorkerMaxJobsActive( <a number> )
-````
 
 The number of jobs is the number the Zeebe Client asks Zeebe. When 100 jobs are requested,
 a batch of 100 jobs is returned. If there are fewer jobs, then Zeebe does not wait for 100
@@ -48,18 +37,31 @@ Zeebe Client will process these 100 jobs and ask again for a new batch only when
 processed via the handle() method.
 
 **Threads** method:
-````
-.numJobWorkerExecutionThreads( <a number> )
-````
 
 Multiple threads can be used to process this batch: this is the number of threads.
 
 **Timeout**
 
+
 The last parameter to take into account is the timeout.
 
 The timeout is crucial to understand: it defines how long Zeebe will wait for a response from the worker before assuming the worker is unresponsive. 
 If no response is received within this period, the job is released and reassigned to another available worker.
+
+Default: 
+This information has a default value in the yaml
+```yaml
+camunda:
+  client:
+    worker:
+      defaults:
+        timeout: PT1M
+```
+
+Visit
+https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/configuration/#define-the-job-timeout
+
+Worker per worker:
 
 This information is set up worker per worker, when it is registered
 ```
@@ -69,6 +71,8 @@ zeebeClient.newWorker()
   .timeout(Duration.ofMinutes(1))
   .open();
 ```
+
+
 Via the Annotation
 ```
 @JobWorker(type="foo", timeout = 3000)
@@ -106,11 +110,15 @@ According to that:
   this is not the time to execute one job, but two or maybe more (number of jobs/NumberOfThread more)
 
 
-How to set up the time out when the Active Jobs is upper than the number of threads:
+How to set up the timeout when the Active Jobs is upper more than the number of threads:
 
 To understand the concept, let take this values:
-Active Jobs: 9
-Number of threads: 3
+
+| Parameter         | Value |
+|-------------------|------:|
+| Active Jobs       |     9 | 
+| Number of threads |     3 |
+
 Time to execute a jobs: 8 seconds.
 
 ### Time = 0
@@ -129,7 +137,7 @@ Jobs 7,8,9 are complete now
 So, to avoid that jobs are not release, the timeout must be set to 24 seconds, and not 8 seconds.
 
 
-## How to set this parameters?
+## How to set these parameters?
 
 **Rule 1: Match Jobs to Threads**
 
@@ -315,15 +323,21 @@ For example, the Thread worker starts when the method is called, starts the thre
 then the handle section is finished. The actual job has not started.
 
 **The execution metric**
+
 This section measures the time the worker does the job. In this simulation, the execution sleeps two seconds.
 
+To have the complete logs information, turn: 
+```yaml
+workerapplication:
+  monitor:
+    logjobs: true
+```
 
 Then, the monitor part shows different information in real-time.
 ````
  o.c.w.monitor.MonitorWorker              : Active worker efficiency: 68, InstantEfficiency: 70 % thread:7 handleWorker: (ClassicalWorker:7),(ThreadTokenWorker:0) execution:(ClassicalWorker:7),(ThreadTokenWorker:0) Total Executions:194
 ````
 And at the end
-
 
 ````
 o.c.w.workers.CalculateExecutionWorker   : ------------- Worker: calculateExecutionWorker PID[2251799813779385] Type[SynchronousThreadLim] in 50790 ms Efficiency: 98 %
@@ -339,6 +353,7 @@ Then, at the moment, the number of threads working is generally less than this n
 
 This indicator is calculated at the end. It calculates the time to execute all actions (time between the `setList` and the `calculatedExecution`)
 Formula is
+
 ``````yaml
 (int) (100.0 * cumulExecutionTime / nbThreadsCampaign / durationCampaign)
 ``````
