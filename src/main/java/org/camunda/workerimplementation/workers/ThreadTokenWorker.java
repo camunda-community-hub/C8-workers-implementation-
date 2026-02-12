@@ -37,7 +37,7 @@ public class ThreadTokenWorker implements JobHandler {
         } catch (Exception e) {
             return;
         }
-        // Now, we get a token, do the job, and release the ZeebeClient thread
+        // Now, we get a token, do the job, and release the camundaClient thread
         // The thread must release the token at the end
         doWorkInDifferentThread(jobClient, activatedJob);
 

@@ -27,7 +27,7 @@ public class WorkerRunAllTests {
     /**
      * Run all test
      */
-    public void run(CamundaClient zeebeClient) {
+    public void run(CamundaClient camundaClient) {
 
         List<String> listTests = workerConfig.getRunListTests();
         List<Result> listResult = new ArrayList<>();
@@ -49,7 +49,7 @@ public class WorkerRunAllTests {
                     if (j == 1 && !workerConfig.runHeterogeneousTest())
                         continue;
 
-                    listResult.add(runOneTest(zeebeClient, testName, isStream, isHomogeneous));
+                    listResult.add(runOneTest(camundaClient, testName, isStream, isHomogeneous));
 
                     // log temporary result
                     logResult(listResult);
@@ -63,7 +63,7 @@ public class WorkerRunAllTests {
         logResult(listResult);
     }
 
-    public Result runOneTest(CamundaClient zeebeClient, String testName, boolean isStream, boolean isHomogeneous) {
+    public Result runOneTest(CamundaClient camundaClient, String testName, boolean isStream, boolean isHomogeneous) {
         Result result = new Result();
         result.testName = testName;
         result.isStream = isStream;
@@ -81,14 +81,14 @@ public class WorkerRunAllTests {
             // Get the path of the resource
             String path = resource.getURL().getPath();
             logger.info("Deploy " + path);
-            zeebeClient.newDeployResourceCommand().addResourceFile(path).send().join();
+            camundaClient.newDeployResourceCommand().addResourceFile(path).send().join();
 
             // Set up the environment
             workerConfig.setOverlapHomogeneousWorker(isHomogeneous);
             monitorWorker.clearCampaign();
 
             // Create one process instance
-            ProcessInstanceEvent processInstanceEvent = zeebeClient.newCreateInstanceCommand()
+            ProcessInstanceEvent processInstanceEvent = camundaClient.newCreateInstanceCommand()
                     .bpmnProcessId(processNameId)
                     .latestVersion()
                     .send()

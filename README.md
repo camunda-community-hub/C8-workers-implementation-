@@ -65,7 +65,7 @@ Worker per worker:
 
 This information is set up worker per worker, when it is registered
 ```
-zeebeClient.newWorker()
+camundaClient.newWorker()
   .jobType("classical-worker")
   .handler(new ClassicalWorker(workerConfig, monitorWorker))
   .timeout(Duration.ofMinutes(1))
@@ -225,7 +225,7 @@ This implementation has this aspect:
   The process instance is already advanced, and it may be finished.
 
 * Does the treatment face an issue? Is it not possible to send an error or ask for a retry?
-  The treatment is immediately done, but the ZeebeClient will not ask for a new Job until all
+  The treatment is immediately done, but the camundaClient will not ask for a new Job until all
   handle() methods are finished
 
 
@@ -239,7 +239,7 @@ The idea is to control the number of threads executed simultaneously to remove t
 The Concurrent Java class is used to manage a limited number of tokens.
 The handle() method must first get a token to create a new thread.
 It will wait if it can't get one and the handle() method is frozen.
-Then, the zeebeClient will stop to request a new job for Zeebe.
+Then, the camundaClient will stop to request a new job for Zeebe.
 
 Visit [Thread Token Worker](doc/ThreadTokenWorker.md) detail.
 

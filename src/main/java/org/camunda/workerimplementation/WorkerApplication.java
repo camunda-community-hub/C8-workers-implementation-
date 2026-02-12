@@ -34,7 +34,7 @@ public class WorkerApplication {
     public WorkerRunAllTests workerRunAllTests;
     Logger logger = LoggerFactory.getLogger(WorkerApplication.class);
     @Autowired
-    private CamundaClient zeebeClient;
+    private CamundaClient camundaClient;
 
     public static void main(String[] args) {
         SpringApplication.run(WorkerApplication.class, args);
@@ -44,24 +44,24 @@ public class WorkerApplication {
     @EventListener(ApplicationReadyEvent.class)
     public void init() {
 
-        logger.info("Start WorkerApplication with maxJobActive[" + zeebeClient.getConfiguration().getNumJobWorkerExecutionThreads() + "] threads["
-                + zeebeClient.getConfiguration().getDefaultJobWorkerMaxJobsActive() + "]");
+        logger.info("Start WorkerApplication with maxJobActive[" + camundaClient.getConfiguration().getNumJobWorkerExecutionThreads() + "] threads["
+                + camundaClient.getConfiguration().getDefaultJobWorkerMaxJobsActive() + "]");
 
-        monitorWorker.setThreadsCampaign(zeebeClient.getConfiguration().getNumJobWorkerExecutionThreads());
+        monitorWorker.setThreadsCampaign(camundaClient.getConfiguration().getNumJobWorkerExecutionThreads());
 
-        zeebeClient.newWorker()
+        camundaClient.newWorker()
                 .jobType("setlist-worker")
                 .handler(new SetListWorker(workerConfig, monitorWorker))
                 .timeout(Duration.ofMinutes(1))
                 .open();
 
 
-        zeebeClient.newWorker()
+        camundaClient.newWorker()
                 .jobType("classical-worker")
                 .handler(new ClassicalWorker(workerConfig, monitorWorker))
                 .timeout(Duration.ofMinutes(1))
                 .open();
-        zeebeClient.newWorker()
+        camundaClient.newWorker()
                 .jobType("classical-stream-worker")
                 .handler(new ClassicalWorker(workerConfig, monitorWorker))
                 .timeout(Duration.ofMinutes(1))
@@ -69,12 +69,12 @@ public class WorkerApplication {
                 .open();
 
 
-        zeebeClient.newWorker()
+        camundaClient.newWorker()
                 .jobType("thread-worker")
                 .handler(new ThreadWorker(workerConfig, monitorWorker))
                 .timeout(Duration.ofMinutes(1))
                 .open();
-        zeebeClient.newWorker()
+        camundaClient.newWorker()
                 .jobType("thread-stream-worker")
                 .handler(new ThreadWorker(workerConfig, monitorWorker))
                 .timeout(Duration.ofMinutes(1))
@@ -82,12 +82,12 @@ public class WorkerApplication {
                 .open();
 
 
-        zeebeClient.newWorker()
+        camundaClient.newWorker()
                 .jobType("thread-token-worker")
                 .handler(new ThreadTokenWorker(workerConfig, monitorWorker))
                 .timeout(Duration.ofMinutes(5))
                 .open();
-        zeebeClient.newWorker()
+        camundaClient.newWorker()
                 .jobType("thread-token-stream-worker")
                 .handler(new ThreadTokenWorker(workerConfig, monitorWorker))
                 .timeout(Duration.ofMinutes(5))
@@ -95,12 +95,12 @@ public class WorkerApplication {
                 .open();
 
 
-        zeebeClient.newWorker()
+        camundaClient.newWorker()
                 .jobType("asynchronous-worker")
                 .handler(new AsynchronousWorker(workerConfig, monitorWorker))
                 .timeout(Duration.ofMinutes(1))
                 .open();
-        zeebeClient.newWorker()
+        camundaClient.newWorker()
                 .jobType("asynchronous-stream-worker")
                 .handler(new AsynchronousWorker(workerConfig, monitorWorker))
                 .timeout(Duration.ofMinutes(1))
@@ -108,14 +108,14 @@ public class WorkerApplication {
                 .open();
 
 
-        zeebeClient.newWorker()
+        camundaClient.newWorker()
                 .jobType("calculation-worker")
                 .handler(new CalculateExecutionWorker(workerConfig, monitorWorker))
                 .timeout(Duration.ofMinutes(1))
                 .open();
 
         if (workerConfig.runTests()) {
-            workerRunAllTests.run(zeebeClient);
+            workerRunAllTests.run(camundaClient);
         }
         // monitorWorker.monitor();
 
